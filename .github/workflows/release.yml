@@ -1,0 +1,53 @@
+name: release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - linux/amd64
+          - linux/arm64
+          - darwin/amd64
+          - darwin/arm64
+          - windows/amd64
+          - windows/arm64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+      - name: build the web interface
+        run: cp "$(nix build .#ui --print-out-paths)/elm.js" internal/server/dist/elm.js
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: build static binary
+        shell: bash
+        env:
+          CGO_ENABLED: "0"
+          TARGET: ${{ matrix.target }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          export GOOS="${TARGET%/*}" GOARCH="${TARGET#*/}"
+          name="coinchord-${TAG}-${GOOS}-${GOARCH}"
+          ext=""; [ "$GOOS" = windows ] && ext=".exe"
+          mkdir -p "dist/$name"
+          go build -trimpath -ldflags "-s -w" -o "dist/$name/coinchord$ext" ./cmd/coinchord
+          cp README.md LICENSE "dist/$name/"
+          cd dist
+          if [ "$GOOS" = windows ]; then zip -qr "$name.zip" "$name"; else tar czf "$name.tar.gz" "$name"; fi
+      - name: upload to the release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          shopt -s nullglob
+          files=(dist/*.tar.gz dist/*.zip)
+          gh release upload "$TAG" "${files[@]}" --clobber

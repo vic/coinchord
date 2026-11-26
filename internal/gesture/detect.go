@@ -36,7 +36,7 @@ type Knob struct {
 
 // Knobs lists every tunable value with its safe range.
 var Knobs = []Knob{
-	{"Trigger level", "Loudness that starts a stroke. Raise it if noise types words.", 0.003, 0.3, 0.002, func(t *Tuning) *float64 { return &t.Trigger }},
+	{"Trigger level", "Loudness that starts a stroke. Raise it if noise types words.", 0.001, 1, 0.002, func(t *Tuning) *float64 { return &t.Trigger }},
 	{"Tap loudness", "Typical peak loudness of a normal tap.", 0.01, 1, 0.01, func(t *Tuning) *float64 { return &t.TapPeak }},
 	{"Friction flatness", "Above this, a sound is a drag, not a tap.", 0.02, 0.9, 0.01, func(t *Tuning) *float64 { return &t.ScrapeFlat }},
 	{"Tap max ms", "Strokes shorter than this can be taps.", 40, 300, 5, func(t *Tuning) *float64 { return &t.TapMaxMs }},
@@ -72,21 +72,24 @@ func (t Tuning) Clamp() Tuning {
 
 // Metrics are the measured properties of one stroke.
 type Metrics struct {
-	DurMs, Peak, Flat, Centroid float64
-	Print                       Print // unit band energies of the whole stroke
-	DriftHz                     float64
-	Peaks                       int
-	PeriodMs                    float64 // mean spacing of loudness bumps
+	DurMs, Peak, Centroid float64
+	Flat                  float64 // lowest spectral flatness of any frame: low = rings, high = scrapes
+	Print                 Print   // unit band energies of the whole stroke
+	DriftHz               float64
+	Peaks                 int
+	PeriodMs              float64 // mean spacing of loudness bumps
 }
 
 // Measure computes stroke metrics from its frames. fs must not be empty.
 func Measure(fs []dsp.Frame, t Tuning) Metrics {
 	n := len(fs)
-	m := Metrics{DurMs: float64(n) * dsp.FrameMs}
+	m := Metrics{DurMs: float64(n) * dsp.FrameMs, Flat: 1}
 	cents := make([]float64, n)
 	for i, f := range fs {
 		m.Peak = math.Max(m.Peak, f.RMS)
-		m.Flat += f.Flat / float64(n)
+		// the most tonal frame: a tap rings at least once (its click frame is
+		// broadband), while a drag is friction noise in every frame
+		m.Flat = math.Min(m.Flat, f.Flat)
 		cents[i] = f.Cent
 		m.Print.addFrame(f)
 	}

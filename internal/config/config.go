@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 
 	"coinchord/internal/gesture"
 	"coinchord/internal/kits"
@@ -31,6 +32,64 @@ type Profile struct {
 	Quality    map[string]Score `json:"quality"` // gesture name -> test results
 	Layers     layer.Set        `json:"layers"`
 	Records    []tutor.Record   `json:"records"`
+	Setups     []Setup          `json:"setups"` // saved kits with their calibration and layers
+}
+
+// Setup is a saved kit: strikers, calibration, test scores and layers.
+type Setup struct {
+	Name       string           `json:"name"`
+	Preset     string           `json:"preset"`
+	Kit        gesture.Kit      `json:"kit"`
+	Tuning     gesture.Tuning   `json:"tuning"`
+	Calibrated bool             `json:"calibrated"`
+	Quality    map[string]Score `json:"quality"`
+	Layers     layer.Set        `json:"layers"`
+}
+
+// SaveSetup stores the active kit under name, replacing a setup of the same name.
+func (p Profile) SaveSetup(name string) (Profile, error) {
+	if strings.TrimSpace(name) == "" {
+		return p, fmt.Errorf("setup needs a name")
+	}
+	b, err := json.Marshal(Setup{name, p.Preset, p.Kit, p.Tuning, p.Calibrated, p.Quality, p.Layers})
+	if err != nil {
+		return p, err
+	}
+	var s Setup // deep copy, so later edits of the active kit do not change the saved one
+	if err := json.Unmarshal(b, &s); err != nil {
+		return p, err
+	}
+	p.Setups = slices.DeleteFunc(slices.Clone(p.Setups), func(x Setup) bool { return x.Name == name })
+	p.Setups = append(p.Setups, s)
+	return p, nil
+}
+
+// UseSetup makes saved setup i the active kit.
+func (p Profile) UseSetup(i int) (Profile, error) {
+	if i < 0 || i >= len(p.Setups) {
+		return p, fmt.Errorf("no setup %d", i)
+	}
+	b, err := json.Marshal(p.Setups[i])
+	if err != nil {
+		return p, err
+	}
+	var s Setup
+	if err := json.Unmarshal(b, &s); err != nil {
+		return p, err
+	}
+	p.Preset, p.Kit, p.Tuning, p.Calibrated, p.Quality, p.Layers = s.Name, s.Kit, s.Tuning.Clamp(), s.Calibrated, s.Quality, s.Layers
+	if p.Quality == nil {
+		p.Quality = map[string]Score{}
+	}
+	return p, nil
+}
+
+// DropSetup deletes saved setup i.
+func (p Profile) DropSetup(i int) Profile {
+	if i >= 0 && i < len(p.Setups) {
+		p.Setups = slices.Delete(slices.Clone(p.Setups), i, i+1)
+	}
+	return p
 }
 
 // Dir is the CoinChord config directory.
@@ -59,7 +118,7 @@ func (p Profile) WithPreset(pr kits.Preset) (Profile, error) {
 	if err != nil {
 		return p, err
 	}
-	np.Tuning, np.Records = p.Tuning, p.Records
+	np.Tuning, np.Records, np.Setups = p.Tuning, p.Records, p.Setups
 	if slices.Equal(codes(p.Kit), codes(np.Kit)) {
 		np.Layers = p.Layers
 	}
@@ -97,6 +156,9 @@ func Load(path string) (Profile, error) {
 		return def, fmt.Errorf("profile was broken (%v); kept it as %s and started fresh", err, bak)
 	}
 	p.Tuning = p.Tuning.Clamp()
+	if set, added, err := p.Layers.WithMissing(p.Kit); err == nil && len(added) > 0 {
+		p.Layers = set // new built-in layers since this profile was saved
+	}
 	if p.Quality == nil {
 		p.Quality = map[string]Score{}
 	}

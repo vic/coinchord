@@ -103,14 +103,46 @@ func (s *Set) Unused(k gesture.Kit) (gesture.Chord, bool) {
 }
 
 // assign binds items to the easiest chords not in skip.
-func assign(name string, ease []gesture.Chord, skip map[gesture.Chord]Expansion, items []string) (Layer, error) {
+// pins bind (left, right) items to the solo gesture of the first striker of each hand.
+type pins map[gesture.Shape][2]string
+
+func (p pins) place(k gesture.Kit, l *Layer, skip map[gesture.Chord]Expansion) error {
+	first := map[gesture.Hand]gesture.Striker{}
+	for _, v := range k.Voices() {
+		if _, ok := first[v.Striker.Hand()]; !ok {
+			first[v.Striker.Hand()] = v.Striker
+		}
+	}
+	for _, sh := range gesture.Shapes {
+		for h, src := range p[sh] {
+			s, ok := first[gesture.Hand(h)]
+			c := gesture.Single(gesture.Gesture{Src: gesture.Solo(s), Shape: sh})
+			if _, taken := skip[c]; !ok || src == "" || taken {
+				continue
+			}
+			e, err := Parse(src)
+			if err != nil {
+				return fmt.Errorf("layer %s pin %q: %w", l.Name, src, err)
+			}
+			l.Bind[c] = e
+		}
+	}
+	return nil
+}
+
+func assign(name string, ease []gesture.Chord, skip map[gesture.Chord]Expansion, items []string, p pins, k gesture.Kit) (Layer, error) {
 	l := Layer{Name: name, Bind: map[gesture.Chord]Expansion{}}
+	if err := p.place(k, &l, skip); err != nil {
+		return l, err
+	}
 	i := 0
 	for _, c := range ease {
 		if i == len(items) {
 			return l, nil
 		}
-		if _, used := skip[c]; used {
+		_, used := skip[c]
+		_, pinned := l.Bind[c]
+		if used || pinned {
 			continue
 		}
 		e, err := Parse(items[i])
@@ -156,7 +188,7 @@ func Defaults(k gesture.Kit, extra []string) (Set, error) {
 	for _, d := range builtin {
 		names = append(names, "{layer:"+d.name+"}")
 	}
-	glob, err := assign("global", sw, nil, names)
+	glob, err := assign("global", sw, nil, names, nil, k)
 	if err != nil {
 		return Set{}, err
 	}
@@ -166,7 +198,7 @@ func Defaults(k gesture.Kit, extra []string) (Set, error) {
 		if d.name == "english" {
 			items = withWords(items, extra)
 		}
-		l, err := assign(d.name, ease, glob.Bind, items)
+		l, err := assign(d.name, ease, glob.Bind, items, d.pins, k)
 		if err != nil {
 			return Set{}, err
 		}
@@ -190,13 +222,71 @@ func withWords(items, words []string) []string {
 var builtin = []struct {
 	name  string
 	items []string
+	pins  pins
 }{
-	{"english", strings.Split("the |and |. |to |a |, |{undo}|of |I |once upon a time, |in |was |he |that |it |his |her |you |as |had |with |for |she |not |at |but |be |my |on |have |him |is |said |me |which |by |so |this |all |from |they |no |were |if |would |or |when |what |there |been |one |could |very |an |who |them |we |now |more |out |do |are |up |their |your |will |little |than |then |some |into |any |well |much |about |time |know |should |man |did |like |upon |such |never |only |good |how |before |other |see |must |am |own |come |down |say |after |think |made |might |being |! |? |{enter}|the end.|thank you |{bs}", "|")},
-	{"alpha", strings.Split("{space}|e|t|a|o|i|n|s|h|r|d|l|c|u|m|w|f|g|y|p|b|v|k|j|x|q|z|{bs}|{undo}", "|")},
-	{"num", strings.Split("0|1|2|3|4|5|6|7|8|9|.|,|{space}|{bs}|+|-|*|/|=|%|:", "|")},
-	{"sym", []string{". ", ", ", "!", "?", ":", ";", "'", "\"", "(", ")", "[", "]", "{{", "}", "<", ">", "/", "\\", "-", "_", "=", "+", "*", "&", "|", "#", "@", "$", "%", "^", "~", "`", "{bs}"}},
-	{"kbd", strings.Split("{enter}|{bs}|{space}|{tab}|{esc}|{left}|{right}|{up}|{down}|{home}|{end}|{del}|{ctrl+bs}|{ctrl+z}|{ctrl+c}|{ctrl+v}|{ctrl+x}|{ctrl+s}|{ctrl+a}|{ctrl+f}|{alt+tab}|{ctrl+w}|{ctrl+t}|{ctrl+shift+t}|{ctrl+tab}|{ctrl+shift+tab}|{super+left}|{super+right}|{super+up}|{super+down}|{ctrl+alt+left}|{ctrl+alt+right}|{super+q}|{super+enter}|{pgup}|{pgdn}", "|")},
-	{"spanish", strings.Split("de |la |que |el |en |y |. |a |, |los |se |{undo}|del |las |un |por |con |no |una |su |para |es |al |lo |como |más |o |pero |sus |le |ha |me |si |sin |sobre |este |ya |entre |cuando |todo |esta |ser |son |dos |también |fue |había |era |muy |años |hasta |desde |está |mi |porque |qué |sólo |han |yo |hay |vez |puede |todos |así |nos |ni |parte |tiene |él |uno |donde |bien |tiempo |mismo |ese |ahora |cada |vida |otro |después |te |otros |aunque |esa |eso |hace |otra |tan |siempre |día |tanto |ella |tres |sí |dijo |gran |menos |había una vez, |ñ|á|é|í|ó|ú|¿|¡|{enter}|{bs}", "|")},
-	{"python", strings.Split("def |return |()|:{enter}| = |if |else:{enter}|for | in |import |from |print(|)|self.|None|True|False|while |class |elif |try:{enter}|except |with | as |lambda |yield |pass|break|continue| and | or |not | is |[|]|{{|}|, |.|'|\"|{enter}|{tab}|{bs}|{undo}", "|")},
-	{"go", strings.Split("func |return |if |err != nil |{{{enter}|}{enter}| := |for |range |package |import |type |struct |interface |var |const |nil|string|int|error|fmt.|go |defer |chan |select |case |switch |default:|make(|append(|len(|)|(|, |.|{enter}|{tab}|{bs}|{undo}", "|")},
+	{"english", strings.Split("the |and |. |to |a |, |{undo}|of |I |once upon a time, |in |was |he |that |it |his |her |you |as |had |with |for |she |not |at |but |be |my |on |have |him |is |said |me |which |by |so |this |all |from |they |no |were |if |would |or |when |what |there |been |one |could |very |an |who |them |we |now |more |out |do |are |up |their |your |will |little |than |then |some |into |any |well |much |about |time |know |should |man |did |like |upon |such |never |only |good |how |before |other |see |must |am |own |come |down |say |after |think |made |might |being |! |? |{enter}|the end.|thank you |{bs}", "|"), nil},
+	{"alpha", strings.Split("{space}|e|t|a|o|i|n|s|h|r|d|l|c|u|m|w|f|g|y|p|b|v|k|j|x|q|z|{bs}|{undo}", "|"), nil},
+	{"num", strings.Split("0|1|2|3|4|5|6|7|8|9|.|,|{space}|{bs}|+|-|*|/|=|%|:", "|"), nil},
+	{"sym", []string{". ", ", ", "!", "?", ":", ";", "'", "\"", "(", ")", "[", "]", "{{", "}", "<", ">", "/", "\\", "-", "_", "=", "+", "*", "&", "|", "#", "@", "$", "%", "^", "~", "`", "{bs}"}, nil},
+	{"kbd", strings.Split("{enter}|{bs}|{space}|{tab}|{esc}|{left}|{right}|{up}|{down}|{home}|{end}|{del}|{ctrl+bs}|{ctrl+z}|{ctrl+c}|{ctrl+v}|{ctrl+x}|{ctrl+s}|{ctrl+a}|{ctrl+f}|{alt+tab}|{ctrl+w}|{ctrl+t}|{ctrl+shift+t}|{ctrl+tab}|{ctrl+shift+tab}|{super+left}|{super+right}|{super+up}|{super+down}|{ctrl+alt+left}|{ctrl+alt+right}|{super+q}|{super+enter}|{pgup}|{pgdn}", "|"), nil},
+	// Host layers share one motion map: left hand = left or up, right hand =
+	// right or down; tap = small step, line = up/down, slide = far, curve = page,
+	// circle = scroll.
+	{"nav", strings.Split("{shift+left}|{shift+right}|{shift+up}|{shift+down}|{do:select-all}|{do:copy}|{do:cut}|{do:paste}|{do:undo}|{do:redo}|{do:find}|{enter}|{bs}|{del}|{esc}|{tab}", "|"), pins{
+		gesture.Tap: {"{left}", "{right}"}, gesture.Line: {"{up}", "{down}"}, gesture.Slide: {"{home}", "{end}"},
+		gesture.Curve: {"{pgup}", "{pgdn}"}, gesture.Circle: {"{scroll:-3}", "{scroll:3}"},
+		gesture.Knock: {"{do:word-left}", "{do:word-right}"}, gesture.Zigzag: {"{do:doc-start}", "{do:doc-end}"},
+	}},
+	{"window", strings.Split("{do:tab-new}|{do:fullscreen}|{do:back}|{do:forward}|{do:save}|{esc}|{enter}", "|"), pins{
+		gesture.Tap: {"{do:switch-back}", "{do:switch}"}, gesture.Line: {"{do:maximize}", "{do:minimize}"},
+		gesture.Slide: {"{do:snap-left}", "{do:snap-right}"}, gesture.Curve: {"{do:desktop-prev}", "{do:desktop-next}"},
+		gesture.Circle: {"{do:tab-prev}", "{do:tab-next}"}, gesture.Knock: {"{do:close}", "{do:tab-close}"},
+		gesture.Zigzag: {"{do:show-desktop}", "{do:launcher}"},
+	}},
+	{"mouse", strings.Split("{down:left}|{up:left}|{scroll:-3,0}|{scroll:3,0}|{move:-150,-150}|{move:150,-150}|{move:-150,150}|{move:150,150}", "|"), pins{
+		gesture.Tap: {"{move:-15,0}", "{move:15,0}"}, gesture.Line: {"{move:0,-15}", "{move:0,15}"},
+		gesture.Slide: {"{move:-150,0}", "{move:150,0}"}, gesture.Curve: {"{move:0,-150}", "{move:0,150}"},
+		gesture.Circle: {"{scroll:-3}", "{scroll:3}"}, gesture.Knock: {"{click:left}", "{click:right}"},
+		gesture.Zigzag: {"{double:left}", "{click:middle}"},
+	}},
+	{"spanish", strings.Split("de |la |que |el |en |y |. |a |, |los |se |{undo}|del |las |un |por |con |no |una |su |para |es |al |lo |como |más |o |pero |sus |le |ha |me |si |sin |sobre |este |ya |entre |cuando |todo |esta |ser |son |dos |también |fue |había |era |muy |años |hasta |desde |está |mi |porque |qué |sólo |han |yo |hay |vez |puede |todos |así |nos |ni |parte |tiene |él |uno |donde |bien |tiempo |mismo |ese |ahora |cada |vida |otro |después |te |otros |aunque |esa |eso |hace |otra |tan |siempre |día |tanto |ella |tres |sí |dijo |gran |menos |había una vez, |ñ|á|é|í|ó|ú|¿|¡|{enter}|{bs}", "|"), nil},
+	{"python", strings.Split("def |return |()|:{enter}| = |if |else:{enter}|for | in |import |from |print(|)|self.|None|True|False|while |class |elif |try:{enter}|except |with | as |lambda |yield |pass|break|continue| and | or |not | is |[|]|{{|}|, |.|'|\"|{enter}|{tab}|{bs}|{undo}", "|"), nil},
+	{"go", strings.Split("func |return |if |err != nil |{{{enter}|}{enter}| := |for |range |package |import |type |struct |interface |var |const |nil|string|int|error|fmt.|go |defer |chan |select |case |switch |default:|make(|append(|len(|)|(|, |.|{enter}|{tab}|{bs}|{undo}", "|"), nil},
+}
+
+// WithMissing adds the built-in layers that s lacks (by name) and a switch
+// chord for each. Existing layers and bindings stay unchanged.
+func (s Set) WithMissing(k gesture.Kit) (Set, []string, error) {
+	def, err := Defaults(k, nil)
+	if err != nil {
+		return s, nil, err
+	}
+	var added []string
+	for _, l := range def.Layers {
+		if _, ok := s.Find(l.Name); ok {
+			continue
+		}
+		sw, err := Parse("{layer:" + l.Name + "}")
+		if err != nil {
+			return s, added, err
+		}
+		nl := Layer{Name: l.Name, Bind: map[gesture.Chord]Expansion{}}
+		taken := func(c gesture.Chord) bool {
+			_, g := s.Global.Bind[c]
+			return g
+		}
+		for c, e := range l.Bind {
+			if !taken(c) {
+				nl.Bind[c] = e
+			}
+		}
+		s.Layers = append(s.Layers, nl)
+		c, ok := s.Unused(k)
+		if !ok {
+			return s, added, fmt.Errorf("no free chord to switch to %s", l.Name)
+		}
+		s.Global.Bind[c] = sw
+		added = append(added, l.Name)
+	}
+	return s, added, nil
 }

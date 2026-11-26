@@ -245,3 +245,40 @@ func (r Ranker) Key(c Chord) (key [3]int, ok bool) {
 	j, okb := r[st[1]]
 	return [3]int{1, i + j, i}, oka && okb
 }
+
+// Add returns the kit with a new striker on hand h at the next free slot.
+// Its print is a guess at hz until calibration replaces it.
+func (k Kit) Add(h Hand, name string, hz float64) (Kit, error) {
+	used := map[Striker]bool{}
+	for _, v := range k.voices {
+		used[v.Striker] = true
+	}
+	for slot := 1; slot <= MaxSlot; slot++ {
+		s, err := NewStriker(h, slot)
+		if err != nil {
+			return k, err
+		}
+		if !used[s] {
+			return NewKit(append(k.Voices(), Voice{Striker: s, Name: name, Print: ToneAt(hz)}))
+		}
+	}
+	return k, fmt.Errorf("kit: %s hand has all %d slots", h.Word(), MaxSlot)
+}
+
+// Remove returns the kit without voice i. A kit keeps at least one voice.
+func (k Kit) Remove(i int) (Kit, error) {
+	if i < 0 || i >= len(k.voices) {
+		return k, fmt.Errorf("kit: no voice %d", i)
+	}
+	return NewKit(append(k.Voices()[:i], k.voices[i+1:]...))
+}
+
+// Rename returns the kit with voice i named name.
+func (k Kit) Rename(i int, name string) (Kit, error) {
+	if i < 0 || i >= len(k.voices) || name == "" {
+		return k, fmt.Errorf("kit: cannot rename voice %d to %q", i, name)
+	}
+	vs := k.Voices()
+	vs[i].Name = name
+	return NewKit(vs)
+}

@@ -22,6 +22,7 @@ const FrameMs = BlockSize / SampleRate * 1000
 // Frame holds the features of one block.
 type Frame struct {
 	RMS  float64   // loudness 0..1
+	Peak float64   // largest absolute sample 0..1 (1 = clipping)
 	Cent float64   // spectral centroid in Hz (MinHz..MaxHz band)
 	Flat float64   // spectral flatness 0..1 (noise-like friction is high)
 	Mag  []float32 // magnitude per bin, index k = k*BinHz
@@ -57,10 +58,11 @@ func fft(x []complex128) []complex128 {
 // Analyze computes features of one block of BlockSize samples.
 func Analyze(buf []int16) Frame {
 	in := make([]complex128, BlockSize)
-	var rms float64
+	var rms, peak float64
 	for i, s := range buf {
 		v := float64(s) / 32768.0
 		rms += v * v
+		peak = math.Max(peak, math.Abs(v))
 		w := 0.5 * (1 - math.Cos(2*math.Pi*float64(i)/float64(BlockSize-1)))
 		in[i] = complex(v*w, 0)
 	}
@@ -80,6 +82,7 @@ func Analyze(buf []int16) Frame {
 	}
 	return Frame{
 		RMS:  math.Sqrt(rms / BlockSize),
+		Peak: peak,
 		Cent: num / den,
 		Flat: math.Exp(logSum/float64(cnt)) / (den / float64(cnt)),
 		Mag:  mag,
@@ -92,9 +95,14 @@ func Read(r io.Reader) (Frame, error) {
 	if _, err := io.ReadFull(r, raw); err != nil {
 		return Frame{}, err
 	}
+	return Decode(raw), nil
+}
+
+// Decode analyzes one block of BlockSize little-endian s16 samples (2*BlockSize bytes).
+func Decode(raw []byte) Frame {
 	s := make([]int16, BlockSize)
 	for i := range s {
 		s[i] = int16(binary.LittleEndian.Uint16(raw[i*2:]))
 	}
-	return Analyze(s), nil
+	return Analyze(s)
 }

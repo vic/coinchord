@@ -120,7 +120,7 @@ func TestClassifyKnobsMatter(t *testing.T) {
 }
 
 func TestParseRejects(t *testing.T) {
-	for _, bad := range []string{"L6", "X", "LL", "L&L1_TAP"} {
+	for _, bad := range []string{"L100", "L0", "L01", "X", "LL", "L&L1_TAP"} {
 		if _, err := ParseGesture(bad + "_TAP"); err == nil {
 			t.Errorf("%q: want error", bad)
 		}
@@ -179,5 +179,68 @@ func TestChordText(t *testing.T) {
 	}
 	if n := len(coins.Ease()); n != 21+21*21 {
 		t.Fatalf("ease count %d", n)
+	}
+}
+
+func TestKitEdit(t *testing.T) {
+	k, err := coins.Add(Left, "key", 11000)
+	if err != nil || k.Voices()[2].Striker != st("L1") {
+		t.Fatalf("add: %v %v", err, k.Voices())
+	}
+	k, _ = k.Add(Left, "pen", 7000)
+	if k.Voices()[3].Striker != st("L2") || len(coins.Voices()) != 2 {
+		t.Fatal("add must use the next slot and not change the original kit")
+	}
+	k, _ = k.Remove(0)
+	k, _ = k.Remove(0)
+	k, _ = k.Remove(0)
+	if _, err := k.Remove(0); err == nil {
+		t.Fatal("the last voice must stay")
+	}
+	if _, err := k.Rename(0, ""); err == nil {
+		t.Fatal("empty name must fail")
+	}
+}
+
+// A real tap is a broadband click followed by a ring that fades into room
+// noise, and it lands anywhere inside a frame. The click frame is noise-like;
+// only the ring is tonal. Every offset must still read as a tap.
+// Measured on live-like input: 3 of 8 taps were read as LINE before the fix.
+func TestTapAtAnyFrameOffset(t *testing.T) {
+	tu := DefaultTuning()
+	for _, hz := range []float64{L, R} {
+		for off := 0; off < dsp.BlockSize; off += dsp.BlockSize / 8 {
+			r := rand.New(rand.NewPCG(uint64(off), 4))
+			samples := make([]int16, 4*dsp.BlockSize)
+			for j := range samples {
+				v := 0.002 * (r.Float64()*2 - 1)
+				if dt := float64(j-off) / dsp.SampleRate; dt >= 0 && dt < 0.06 {
+					v += 0.15 * math.Sin(2*math.Pi*hz*dt) * math.Exp(-dt*40)
+				}
+				samples[j] = int16(v * 32767)
+			}
+			var seg Segmenter
+			var got []Gesture
+			for i := 0; i+dsp.BlockSize <= len(samples); i += dsp.BlockSize {
+				if fs, ok := seg.Push(dsp.Analyze(samples[i:i+dsp.BlockSize]), tu); ok {
+					g, _ := Classify(Measure(fs, tu), coins, tu)
+					got = append(got, g)
+				}
+			}
+			if fs, ok := seg.Push(dsp.Frame{}, tu); ok { // flush with silence
+				g, _ := Classify(Measure(fs, tu), coins, tu)
+				got = append(got, g)
+			}
+			for range 3 {
+				if fs, ok := seg.Push(dsp.Frame{}, tu); ok {
+					g, _ := Classify(Measure(fs, tu), coins, tu)
+					got = append(got, g)
+				}
+			}
+			want := Gesture{Solo(st(map[float64]string{L: "L", R: "R"}[hz])), Tap}
+			if len(got) != 1 || got[0] != want {
+				t.Errorf("%v Hz at offset %d: got %v want [%v]", hz, off, got, want)
+			}
+		}
 	}
 }

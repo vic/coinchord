@@ -95,6 +95,7 @@ type Step struct {
 	Layer  string // layer active when the chord is performed
 	Expand layer.Expansion
 	Text   string // typed text after the step
+	Say    string // what the step does, for drills
 }
 
 // Plan finds a chord sequence that types target, starting in layer start.
@@ -111,7 +112,7 @@ func Plan(s *layer.Set, k gesture.Kit, start, target string) ([]Step, error) {
 		}
 		from := ty.Active
 		ty.Apply(e)
-		steps = append(steps, Step{c, from, e, ty.Text()})
+		steps = append(steps, Step{Chord: c, Layer: from, Expand: e, Text: ty.Text()})
 		if len(steps) > 4*len(target)+8 {
 			return steps, fmt.Errorf("plan too long for %q", target)
 		}
@@ -119,7 +120,7 @@ func Plan(s *layer.Set, k gesture.Kit, start, target string) ([]Step, error) {
 	// return to the start layer at the end, so the next sentence starts there
 	if ty.Active != start {
 		if c, e, ok := p.switchTo(start); ok {
-			steps = append(steps, Step{c, ty.Active, e, ty.Text()})
+			steps = append(steps, Step{Chord: c, Layer: ty.Active, Expand: e, Text: ty.Text()})
 		}
 	}
 	return steps, nil

@@ -5,8 +5,6 @@ import (
 	"context"
 	"io"
 	"os"
-	"os/exec"
-	"runtime"
 	"sync/atomic"
 	"time"
 
@@ -18,17 +16,13 @@ import (
 // The input is raw signed 16-bit little-endian mono at 44100 Hz.
 func Open(ctx context.Context, path string) (io.ReadCloser, error) {
 	if path != "" {
-		return os.Open(path)
+		f, err := os.Open(path)
+		if err != nil {
+			return nil, err
+		}
+		return &paced{f, time.Now(), 0}, nil
 	}
-	cmd := exec.CommandContext(ctx, "arecord", "-q", "-f", "S16_LE", "-r", "44100", "-c", "1", "-t", "raw")
-	if runtime.GOOS == "darwin" {
-		cmd = exec.CommandContext(ctx, "rec", "-q", "-t", "raw", "-r", "44100", "-e", "signed-integer", "-b", "16", "-c", "1", "-")
-	}
-	out, err := cmd.StdoutPipe()
-	if err != nil {
-		return nil, err
-	}
-	return out, cmd.Start()
+	return openMic(ctx)
 }
 
 // Setup is what the listener needs to classify; swap it at any time.
@@ -60,20 +54,42 @@ type Chord struct {
 // Stopped reports the end of the input.
 type Stopped struct{ Err error }
 
-// Listen reads frames from r until it ends and emits Frame, Stroke, Chord
-// and finally Stopped. Time is counted in frames, so file input replays
-// exactly like live input.
+// captureBuffer is how many raw blocks may wait for analysis (~1.5 s).
+const captureBuffer = 64
+
+// capture reads raw blocks on its own goroutine, so a slow consumer never
+// makes the sound card overrun. The channel closes at the end of the input;
+// the error is sent on errc first.
+func capture(r io.Reader, errc chan<- error) <-chan []byte {
+	blocks := make(chan []byte, captureBuffer)
+	go func() {
+		defer close(blocks)
+		for {
+			raw := make([]byte, dsp.BlockSize*2)
+			if _, err := io.ReadFull(r, raw); err != nil {
+				errc <- err
+				return
+			}
+			blocks <- raw
+		}
+	}()
+	return blocks
+}
+
+// Listen analyzes audio from r until it ends and emits Frame, Stroke, Chord
+// and finally Stopped. Capture runs on its own goroutine; analysis runs on
+// the caller's goroutine, so run Listen with go. Time is counted in frames,
+// so file input replays exactly like live input.
 func Listen(r io.Reader, setup *atomic.Pointer[Setup], emit func(any)) {
+	errc := make(chan error, 1)
 	var seg gesture.Segmenter
 	var comp gesture.Composer
-	for i := 0; ; i++ {
-		f, err := dsp.Read(r)
-		if err != nil {
-			emit(Stopped{err})
-			return
-		}
+	i := 0
+	for raw := range capture(r, errc) {
+		f := dsp.Decode(raw)
 		s := setup.Load()
 		at := time.Duration(float64(i) * dsp.FrameMs * float64(time.Millisecond))
+		i++
 		emit(Frame{f, at})
 		if fs, ok := seg.Push(f, s.Tuning); ok {
 			m := gesture.Measure(fs, s.Tuning)
@@ -91,4 +107,23 @@ func Listen(r io.Reader, setup *atomic.Pointer[Setup], emit func(any)) {
 			emit(Chord{c, at})
 		}
 	}
+	emit(Stopped{<-errc})
 }
+
+// paced plays a file at the speed a microphone would deliver it.
+type paced struct {
+	f     *os.File
+	start time.Time
+	n     int64
+}
+
+const bytesPerSecond = 44100 * 2
+
+func (p *paced) Read(b []byte) (int, error) {
+	n, err := p.f.Read(b)
+	p.n += int64(n)
+	time.Sleep(time.Until(p.start.Add(time.Duration(p.n) * time.Second / bytesPerSecond)))
+	return n, err
+}
+
+func (p *paced) Close() error { return p.f.Close() }

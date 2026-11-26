@@ -1,119 +1,159 @@
-# CoinChord: Type at CharaChorder Speeds Using Everyday Desk Objects & Your Laptop Mic
+# CoinChord: type and drive your computer with two coins and your laptop mic
 
 [![Sponsor](https://img.shields.io/badge/sponsor-vic-ea4aaa?logo=githubsponsors)](https://github.com/sponsors/vic)
 
 ![genesis](./genesis.gif)
-# CoinChord: Type at CharaChorder Speeds with Two Desk Objects & Your Laptop Mic
 
-Welcome to **CoinChord**—an acoustic word-chording keyboard that turns your laptop's built-in microphone and two everyday objects on your desk into a high-speed text input engine. No custom hardware, no webcams, no Bluetooth dongles, and zero batteries.
+CoinChord turns the microphone in your laptop into a chording keyboard. You hold a small object in each hand — two coins, a key and a spoon, even just your fingernails — and you tap, drag, hook and swirl them on your desk. CoinChord listens, tells your hands apart by their sound, tells the shapes apart by how they ring and scrape, and turns each little motion into a whole word, a shortcut, a scroll or a mouse click. No special hardware, no camera, no batteries.
 
-### The Core Mindset: Stop Spelling, Start Conducting
-Most keyboards trap you in a 19th-century bottleneck: hunting down one letter at a time (`t` -> `h` -> `e` -> `space`). Radical chording keyboards like the **CharaChorder** break the 250+ WPM barrier by letting you trigger **entire words and phrases as a single physical gesture**.
+## The idea: stop spelling, start conducting
 
-CoinChord brings that exact philosophy to your existing laptop using **acoustic geometry**:
-* **Think like a drummer or pianist, not a typist.** You aren't pressing tiny buttons; you are performing crisp **taps**, straight **lines**, sweeping **curves**, and circular **swirls** on your desk.
-* **Your microphone is a 44,100 Hz radar.** While a webcam struggles at 30 frames per second in dim light, your laptop's mic captures 44,100 samples every second—easily separating your left hand from your right hand by resonant pitch, and telling a straight drag apart from a curved hook or a circular swirl.
-* **Bind concepts to motion.** Never mentally spell out `"w-i-t-h"`. Instead, teach your hands that *"Left draws a line while Right hooks a curve"* simply **means** `"with "`. Once your motor cortex links the shape directly to the word, your hands flow at conversational speech speed.
+A normal keyboard makes you hunt for one letter at a time. Chording keyboards like the CharaChorder go much faster because one motion types a whole word. CoinChord brings that idea to the desk you already have.
 
----
+Think like a drummer, not a typist. A light tap with your left coin can mean "the". A tap with the right coin can mean "and". A small knock can type "once upon a time, " in one go. Two gestures close together make a chord, and chords give you hundreds of words. You never spell "w-i-t-h" again: your hands simply learn that one motion means "with".
 
-## 1. What Objects Should You Use? (Coins & Everyday Alternatives)
+Your mic is a surprisingly good ear. It hears 44,100 samples a second, so it can tell a bright "tink" from a deep "clink", and a crisp tap from a long scrape, a hooked curve or a circle.
 
-CoinChord doesn't care what is in your hands—it only needs **two strikers that make noticeably different pitches** when they touch or slide across your desk:
-* **Left Hand = High Pitch (~8.5–12 kHz):** Something small, light, or sharp that rings with a bright *"tink"*.
-* **Right Hand = Low Pitch (~4.5–7.5 kHz):** Something larger, heavier, or denser that rings with a deeper *"clink"* or *"thunk"*.
+## Pick your strikers
 
-### The Best Desk Pairs You Already Own
+CoinChord only needs things that sound different. A bright, light object goes in the left hand and a deeper, heavier one in the right. These all work well:
 
-| Pair | Left Hand (High Pitch) | Right Hand (Low Pitch) | What It Feels Like |
+| Kit | Left hand | Right hand | Why people like it |
 | :--- | :--- | :--- | :--- |
-| **Pocket Coins** | Small coin (e.g., \$1 MXN, Dime, €0.10) | Large coin (e.g., \$10 MXN, Quarter, €2) | **The Gold Standard.** Smooth edges glide effortlessly into circles and curves while ringing clearly. |
-| **Key & Spoon** | House key (brass or steel) | Metal spoon or butter knife | **Maximum Contrast.** Almost impossible for the mic to confuse, even in a noisy café. |
-| **Desk Pens** | Light plastic pen cap | Heavy metal pen or lighter | **Office Native.** Natural if you already fidget with pens while thinking or coding. |
-| **Zero-Object** | Your bare fingernail | Wedding ring or knuckle | **Always With You.** Flick a fingernail for a sharp high click; tap a ring or knuckle for a low thud. |
-| **Musician's Setup** | Guitar pick | Ceramic mug rim or wooden coaster | **Ultra-Fast.** Effortless high-speed taps and sweeps with zero hand tension. |
+| Pocket coins | Small coin | Large coin | Smooth edges glide into curves and circles, and they ring clearly. |
+| Coins on a plate | Small coin | Large coin | Tap on an upside-down ceramic plate: loud and bright. |
+| Key & spoon | House key | Metal spoon | So different that even a noisy café can't confuse them. |
+| Desk pens | Plastic pen cap | Metal pen | Perfect if you already fidget with pens. |
+| Nail & ring | Fingernail flick | Ring or knuckle | Nothing to carry: it's always on you. |
+| Pick & mug | Guitar pick | Mug rim or coaster | Effortless, fast taps and sweeps. |
+| Kitchen four, Desk four | Two objects | Two objects | Four voices for twice the chords. |
+| Ten nails | Five fingernails | Five fingernails | Scratch the laptop palm rest: the most chords of all. |
 
-> **A Quick Note on Desk Surfaces:** Hard wood, laminate, glass, stone, or a thick hardcover book reflect crisp high-frequency sound straight into your laptop mic. If you use a soft cloth gaming mousemat, slide a hardcover notebook or wooden coaster under your hands so your strikers can sing.
+You can also build your own kit with as many objects per hand as you like, and save it.
 
-## 2. How to Hold Your Strikers (Zero Arm Fatigue)
+Hard surfaces sing best: wood, laminate, glass, stone, a ceramic plate or a hardcover book. On a soft mouse mat, slide a notebook under your hands.
 
-The fastest way to quit a new input method is shoulder soreness. Never hover your hands in mid-air like you're playing an invisible keyboard. Use the **Desk-Anchored Pinch**:
+## Hold them like this
 
-1. **Plant the heels of both palms flat on the table** right in front of your laptop. Your wrists stay relaxed and supported the entire time.
-2. **Pinch each object lightly between your thumb and index finger**—just like holding a guitar pick—with about half of the object extending below your fingertips to touch the desk.
-3. **Hold near the edge, never the dead center.** Squeezing the middle of a coin or spoon muffles its ring like grabbing a bell. Holding near the rim lets the metal vibrate freely.
-4. **Keep gestures compact.** A **1-inch line** or a **dime-sized circle** gives the microphone more than enough acoustic detail. Small movements mean high speed and zero fatigue.
+Rest the heels of both palms on the table, so your arms never get tired. Pinch each object lightly near its edge, like a guitar pick, with part of it touching the desk. Holding the middle muffles the ring. Keep it small: a one-inch line or a dime-sized circle is plenty, and small motions are fast motions.
 
----
+## Get it running
 
-## 3. Quick Start
+Grab the binary for your system from the GitHub releases page. Linux, macOS and Windows builds are single static files: download, unpack, run. CoinChord starts a small web server on your own computer and opens its page in your browser, at http://127.0.0.1:7317. Only your computer can reach it.
 
-With Nix, run CoinChord from the project directory:
+With Nix, run it straight from the repo:
 
     $ nix run
 
-Or enter the development shell and run it with Go:
+A few flags come in handy:
 
-    $ nix develop
-    $ go run ./cmd/coinchord
+    $ coinchord -output on          # chords act on your computer right away
+    $ coinchord -open=false         # don't open the browser
+    $ coinchord -listen 127.0.0.1:8080
+    $ coinchord -text mytext.txt    # practice with your own text
 
-On Linux CoinChord reads the mic through `arecord` from `alsa-utils`. On macOS it uses `rec` from `sox`. The flake provides both. CoinChord opens a full-screen terminal interface. You can click every control with the mouse, so you do not need to know any keys. The wheel scrolls lists.
+On Linux, CoinChord listens through `arecord` from alsa-utils. On macOS it listens through `rec`, which you get with `brew install sox`. On Windows it listens directly.
 
-The interface has six sections. The live strip at the top stays visible in all of them. It shows each striker as a coin that glows when the mic hears it, a loudness meter, the live sound spectrum, your last strokes and your last chord with the text it types.
+### Run it as a service
 
-## 4. Kits: Coins, Nails and Other Objects
+On NixOS, add the flake and switch it on. CoinChord then starts with your desktop session, and the users you list can send keyboard and mouse input:
 
-A kit is the set of strikers you use. Each striker belongs to one hand. The **Overview** section shows the kits with their contrast, shape and speed ratings, and the number of gestures and chords each kit gives. Click a kit to use it.
+    services.coinchord = {
+      enable = true;
+      users = [ "alice" ];
+      output = "off";   # or "on"
+      port = 7317;
+    };
 
-The classic kits have one striker per hand, for example a small coin and a large coin. Larger kits have more voices per hand: two kitchen objects per hand, or each fingernail on the laptop palm rest (strikers `L1`–`L5` and `R1`–`R5`). More voices give more chords, but the voices must sound different. Calibration measures this for your objects, so you know if a kit works for you.
+With home-manager, use `homeManagerModules.default` and the same `services.coinchord` options (without `users`). Open http://127.0.0.1:7317 whenever you want to see what CoinChord hears.
 
-## 5. Calibrate
+## A quick tour
 
-Open **Calibrate** first. It takes about two minutes:
+Everything on the page is a button or a slider, so you never need to remember a key. The bar at the top always tells you what to do next and gives you a button for it, and the little path above it shows how far you've come.
 
-1. Stay quiet for 2 seconds. CoinChord measures the room noise and sets the trigger.
-2. Tap each striker 5 times. CoinChord learns the sound print of each one and shows how alike they sound. Alike strikers are easy to confuse.
-3. Drag one striker 3 times. CoinChord learns the difference between a tap and friction.
-4. Try every gesture 3 times. Each card shows a live score. Skip any gesture and come back later.
+Right under it, the live strip is always there. Your objects appear as coins that light up when the mic hears them, the mic status says if sound is coming in, and a level bar shows your room noise (yellow) next to the trigger line (red). A sound has to cross the red line to count. If the mic is muted or too loud, the strip tells you and offers a button to fix it.
 
-The report counts your reliable gestures, shows a score per shape and striker, and lists the weakest gestures with tips. The profile is saved in `~/.config/coinchord/profile.json` (the user config directory of your system).
+**Kits** shows your kit and lets you rename, add and remove objects, save the whole setup, and switch between saved setups. Below are kit ideas to start from.
 
-## 6. The Gestures
+**Calibrate** teaches CoinChord your objects. Stay quiet for two seconds, tap each object five times, drag one three times, and then try every gesture. You see live which ones the mic hears well, and a report at the end tells you how many chords you have at your fingertips.
 
-A gesture is a source and a shape. The source is one striker, or two strikers of different hands at the same time (for example `L&R`). The shapes are:
+**Gestures** shows every gesture your kit can make, with a little drawing and a how-to. Each card lights up when you perform it, and the side panel shows how CoinChord measured your last stroke and which object it matched.
 
-* `TAP`: a light, quick tap.
-* `KNOCK`: a firm tap, about twice as loud.
-* `LINE`: a straight 1-inch drag.
-* `CURV`: a drag that hooks at the end, like a J.
-* `CIRC`: a small circle, 1.5 turns.
-* `SLIDE`: a long, slow straight drag.
-* `ZIG`: a fast zigzag scribble.
+**Tutor** starts with a bit of magic: one gesture types a whole phrase, and a handful type a full sentence. Then you work through short stories sentence by sentence. The tutor always shows the next chord, how to make it and what it types, and it tracks your words per minute, chords per minute and accuracy. Mistakes never type anything, so there's no pressure. Drop your own `.txt` files in `~/.config/coinchord/stories` to practice with them.
 
-One gesture, or two gestures inside the chord window, make a chord. A two-coin kit has 21 gestures and 462 chords. The **Gestures** section shows every gesture of your kit with a drawing and a how-to. A card lights up when the mic hears it. The side panel shows how CoinChord measured the last stroke: duration, loudness, friction, bumps, pitch bend and which striker it matched, each against the knob that decides it.
+**Layers** shows what every chord does. Click any row to try it in the sandbox, or perform chords and watch them type.
 
-## 7. Tutor
+**Settings** lets you tune detection by dragging lines on live graphs, record your own chords, and manage your practice texts.
 
-The **Tutor** starts by showing how one gesture types a whole phrase, and how a few gestures type a full sentence. Click *Watch the magic* to see it play. Then each lesson is one sentence of a short story. The tutor shows the next chord, how to perform it, and what it types. A wrong chord types nothing, so mistakes cost nothing. When the text has a word with no chord, the tutor switches to the `alpha` layer and spells it.
+## The gestures
 
-Each run measures words per minute, chords per minute, accuracy, time, and the chords you missed most. Your records are saved, and a progress chart shows your last runs. To practice your own text, put `.txt` files in `~/.config/coinchord/stories`, or start with:
+Every gesture is a striker plus a shape. The shapes are:
 
-    $ coinchord -text mytext.txt
+* **TAP**: a light, quick tap.
+* **KNOCK**: a firmer tap, about twice as loud.
+* **LINE**: a straight one-inch drag.
+* **CURV**: a drag that hooks at the end, like a J.
+* **CIRC**: a small circle, one and a half turns.
+* **SLIDE**: a long, slow drag.
+* **ZIG**: a quick zigzag scribble.
 
-## 8. Layers
+You can also sound both hands at once, which CoinChord writes as `L&R`. Two gestures close together make a chord, so two coins already give you 21 gestures and 462 chords.
 
-A layer maps chords to text and keys. The built-in layers are `english` (common words and phrases), `alpha` (letters), `num`, `sym`, `kbd` (Return, Backspace, Tab, arrows, and shortcuts such as `ctrl+c`, `alt+tab` and `super+left` for window management), `spanish`, `python` and `go`. The `global` layer holds the layer switches. They work from any layer and use two-hand gestures. The **Layers** section shows every binding. Click a binding, or perform a chord, to type it into the sandbox.
+## Layers
 
-## 9. Settings
+A layer is a set of chords for one job, and you can hop between layers with two-hand gestures at any time.
 
-**Knobs** change detection: trigger level, tap length, knock ratio, curve bend, slide length, circle and zigzag bumps, two-hand margin, chord window and more. Each knob has a safe range. **Bindings** edits layers: click *Record a new binding*, perform the chord, then write its expansion. An expansion is text plus tokens: `{enter}`, `{bs}`, `{tab}`, `{space}`, `{ctrl+alt+left}`, `{layer:kbd}`, `{undo}`, and `{{` for a literal `{`. You can add a new layer; CoinChord gives it a free switch chord. **Stories** reloads your texts and can give every missing word its own chord.
+`english` has the most common words and phrases. `alpha` spells letter by letter, `num` has digits and `sym` has punctuation. `kbd` has Return, Backspace, Tab, Escape and raw shortcuts. `spanish`, `python` and `go` are there too, and you can add your own.
 
-## 10. Troubleshooting
+## Drive your whole computer
 
-* **Noise or speech types words:** raise *Trigger level* in Settings, or calibrate again in a quiet moment.
-* **Curves detected as lines:** hook the wrist more at the end, or lower *Curve drift Hz*.
-* **Circles detected as lines:** make 1.5 turns, a bit wider, or lower *Circle bumps*.
-* **Two strikers confused:** look at the report. If they are more than 90% alike, choose objects with more different sounds.
-* **Test without a mic:** `coinchord -input file.raw` reads raw signed 16-bit mono 44100 Hz audio from a file.
+Flip the **Output** switch at the bottom left and CoinChord becomes a real keyboard and mouse for every window on your computer. Words land in your editor, shortcuts switch windows, circles scroll pages and knocks click. Flip it again to stop.
 
-Keyboard actions such as `{ctrl+c}` show in the sandbox. CoinChord does not yet send keys to other programs.
+Three layers are made for this, and they share one easy motion map: your left hand goes left or up, your right hand goes right or down. A tap is a small step, a line moves up or down, a slide goes far, a curve jumps a page and a circle scrolls.
+
+* `nav` moves the text cursor by characters, words, lines and pages, and selects, copies and pastes.
+* `window` switches, maximizes, minimizes and snaps windows, moves between desktops, opens the launcher and steps through tabs.
+* `mouse` is a mouse pad: nudge and jump the pointer, click, double-click, right-click, drag and scroll.
+
+Window commands work the same everywhere: the "next window" chord presses Alt+Tab on Linux and Windows and Cmd+Tab on a Mac.
+
+The Tutor has five host-skill drills — Windows, Navigation, Scrolling, Mouse pad, and Tabs & browser — that walk you through all of it, one action at a time.
+
+The first time, each system wants a quick permission:
+
+* **Linux:** CoinChord creates a virtual keyboard and mouse, which works on both X11 and Wayland. Give your user access to `/dev/uinput`, for example with the udev rule `KERNEL=="uinput", GROUP="input", MODE="0660"` and by joining the `input` group.
+* **macOS:** allow CoinChord (or the terminal you start it from) in System Settings → Privacy & Security → Accessibility.
+* **Windows:** nothing to do.
+
+## Make it yours
+
+In **Settings → Your chords**, click *Record a chord*, perform any chord, and type what it should do. You can also click any row to change it. An expansion is plain text mixed with tokens in braces:
+
+* keys: `{enter}`, `{bs}`, `{tab}`, `{space}`, `{esc}`, arrows like `{left}`, and combos like `{ctrl+alt+left}`
+* layers: `{layer:kbd}` switches layer, `{undo}` takes back the last chord
+* commands: `{do:switch}`, `{do:snap-left}`, `{do:copy}`, `{do:tab-new}` and friends
+* mouse: `{move:40,0}`, `{scroll:3}`, `{click:left}`, `{double:left}`, `{down:left}`, `{up:left}`
+* a literal brace: `{{`
+
+**Settings → Detection** shows your loudness live on a graph. Drag the red line to choose how loud a sound must be to count: above the yellow room noise, below your taps. Under it, a slider for each border between shapes — tap length, knock strength, curve bend, slide length, circle and zigzag bumps, two-hand balance, chord window — with a dot that shows where your last stroke landed, so you can see exactly which side of the line it fell on.
+
+On the **Kits** page you can save the whole setup — calibration, scores and chords — so you can switch between your coins-on-the-desk setup and your nails-on-the-laptop setup with one click.
+
+Your profile lives in `~/.config/coinchord/profile.json`.
+
+## When things don't click
+
+* **Nothing lights up:** look at the mic status in the live strip. If it says the mic sends silence, click *Unmute*. If it says too loud, click *Volume −* until the yellow room-noise mark sits well left of the red line.
+* **Noise or talking types words:** drag the red line up in Settings → Detection, or click *Set from room noise* while the room is quiet.
+* **Curves come out as lines:** hook your wrist a little more at the end.
+* **Circles come out as lines:** make one and a half turns, a bit wider.
+* **Your two objects get mixed up:** the calibration report shows how alike they sound. Above 90% alike, try objects that sound more different.
+* **Want to test without a mic:** `coinchord -input file.raw` plays raw 16-bit mono 44,100 Hz audio from a file.
+
+## Help make detection better
+
+Start CoinChord with `-record DIR` and calibrate as usual. It saves what the mic heard together with what you were asked to do. Later, `coinchord -eval DIR/<session>.raw` replays that session and tells you how many gestures were detected right and which ones got mixed up — handy when you tune the sliders, and gold if you want to share recordings to improve CoinChord.
+
+## Support
+
+If CoinChord makes you smile, consider [sponsoring vic](https://github.com/sponsors/vic) — there's a ♥ Sponsor button right in the app too.

@@ -67,4 +67,6 @@ var Presets = []Preset{
 		append(nails("L", []float64{6000, 9500, 10500, 11500, 12500}), nails("R", []float64{5500, 8000, 8800, 9800, 10800})...)},
 	{"Fingertip drums", "Laptop palm rest", "Nail tip and finger pad per hand: click versus thud.", 3, 2, 5,
 		[]Spec{{"L1", "Left nail tip", 11000}, {"L2", "Left finger pad", 3500}, {"R1", "Right nail tip", 9500}, {"R2", "Right knuckle", 4500}}},
+	{"Coins on a plate", "Upside-down ceramic plate", "Bright and loud. The plate rings too: check how alike the coins sound.", 4, 3, 4,
+		[]Spec{{"L", "Small coin", 9500}, {"R", "Large coin", 6200}}},
 }

@@ -9,8 +9,8 @@ import (
 // Typist applies expansions to a text buffer. It capitalizes sentence
 // starts, joins punctuation to the previous word and keeps an undo stack.
 type Typist struct {
-	Active  string  // active layer name
-	Pressed []Combo // combos that are not text edits (shortcuts), newest last
+	Active  string   // active layer name
+	Host    []string // actions only the host can do (shortcuts, mouse, commands), newest last
 	text    string
 	history []string
 }
@@ -19,7 +19,7 @@ type Typist struct {
 func (t *Typist) Text() string { return t.text }
 
 // Reset clears the text and history.
-func (t *Typist) Reset() { t.text, t.history, t.Pressed = "", nil, nil }
+func (t *Typist) Reset() { t.text, t.history, t.Host = "", nil, nil }
 
 const historyMax = 64
 
@@ -33,6 +33,10 @@ func (t *Typist) Apply(e Expansion) {
 			t.typeText(string(a))
 		case Combo:
 			t.press(a)
+		case Mouse:
+			t.Host = append(t.Host, a.String())
+		case Command:
+			t.Host = append(t.Host, "do:"+a.String())
 		case Switch:
 			t.Active = string(a)
 		case Undo:
@@ -72,7 +76,7 @@ func (t *Typist) sentenceStart() bool {
 
 func (t *Typist) press(c Combo) {
 	if c.Mods != 0 {
-		t.Pressed = append(t.Pressed, c)
+		t.Host = append(t.Host, c.String())
 		return
 	}
 	switch c.Key {
@@ -90,6 +94,6 @@ func (t *Typist) press(c Combo) {
 			t.typeText(c.Key)
 			return
 		}
-		t.Pressed = append(t.Pressed, c)
+		t.Host = append(t.Host, c.String())
 	}
 }

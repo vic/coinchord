@@ -64,3 +64,41 @@ func TestStats(t *testing.T) {
 		t.Fatalf("wpm %v acc %v cpm %v", s.WPM(), s.Accuracy(), s.CPM())
 	}
 }
+
+// Every drill must be playable with the default layers of every kit, and
+// replaying it must perform exactly the asked actions, ending in english.
+func TestPlanDrills(t *testing.T) {
+	for _, p := range kits.Presets {
+		k, _ := p.Kit()
+		set, err := layer.Defaults(k, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, d := range Drills {
+			steps, err := PlanDrill(&set, k, "english", d)
+			if err != nil {
+				t.Fatalf("%s/%s: %v", p.Name, d.Title, err)
+			}
+			ty := layer.Typist{Active: "english"}
+			var did []string
+			for _, s := range steps {
+				e, ok := set.Lookup(ty.Active, s.Chord)
+				if !ok || e.Src() != s.Expand.Src() {
+					t.Fatalf("%s/%s: %v not bound in %s", p.Name, d.Title, s.Chord, ty.Active)
+				}
+				if _, sw := e.Actions()[0].(layer.Switch); !sw {
+					did = append(did, e.Src())
+				}
+				ty.Apply(e)
+			}
+			if len(did) != len(d.Steps) || ty.Active != "english" {
+				t.Fatalf("%s/%s: did %d of %d, ends in %s", p.Name, d.Title, len(did), len(d.Steps), ty.Active)
+			}
+			for i, ds := range d.Steps {
+				if did[i] != ds.Want {
+					t.Fatalf("%s/%s step %d: did %s want %s", p.Name, d.Title, i, did[i], ds.Want)
+				}
+			}
+		}
+	}
+}

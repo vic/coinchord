@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoinChord</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app"><div class="loading"><div class="logo big">◎</div><h2>CoinChord</h2><p>Starting…</p></div></div>
+<script src="elm.js" onerror="document.getElementById('app').innerHTML='<div class=loading><h2>CoinChord</h2><p>The interface is not built yet. Build it with <code>nix build</code> or <code>elm make</code> in <code>web/</code>.</p></div>'"></script>
+<script>
+// Bridges the Elm app and the engine. Elm sends commands on "send" and
+// receives every engine message on "receive"; the socket reconnects by itself.
+if (window.Elm) {
+  const app = Elm.Main.init({ node: document.getElementById('app'), flags: location.hash.slice(1) });
+  let ws = null;
+  const connect = () => {
+    ws = new WebSocket(`ws://${location.host}/ws`);
+    ws.onopen = () => app.ports.receive.send({ t: 'open' });
+    ws.onmessage = (e) => app.ports.receive.send(JSON.parse(e.data));
+    ws.onclose = () => { app.ports.receive.send({ t: 'closed' }); setTimeout(connect, 1000); };
+  };
+  app.ports.send.subscribe((m) => { if (ws && ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(m)); });
+  connect();
+}
+</script>
+</body>
+</html>

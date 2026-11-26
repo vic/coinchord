@@ -6,6 +6,7 @@ package gesture
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -22,8 +23,8 @@ func (h Hand) String() string { return [...]string{"L", "R"}[h] }
 // Word is the human name of the hand.
 func (h Hand) Word() string { return [...]string{"Left", "Right"}[h] }
 
-// MaxSlot is the highest numbered slot per hand (one per finger).
-const MaxSlot = 5
+// MaxSlot is the highest numbered slot per hand.
+const MaxSlot = 99
 
 // Striker is one sound source: a hand and a slot. Slot 0 is the single
 // object of that hand ("L"); slots 1..MaxSlot are numbered ("L3").
@@ -53,17 +54,18 @@ func (s Striker) String() string {
 
 // ParseStriker parses "L", "R", "L1".."R5".
 func ParseStriker(s string) (Striker, error) {
-	if len(s) < 1 || len(s) > 2 || (s[0] != 'L' && s[0] != 'R') {
-		return Striker{}, fmt.Errorf("striker %q: want L, R, L1..R%d", s, MaxSlot)
+	if s == "" || (s[0] != 'L' && s[0] != 'R') {
+		return Striker{}, fmt.Errorf("striker %q: want L, R, or L1..R%d", s, MaxSlot)
 	}
 	h := map[byte]Hand{'L': Left, 'R': Right}[s[0]]
 	if len(s) == 1 {
 		return Striker{h, 0}, nil
 	}
-	if s[1] < '1' || s[1] > '0'+MaxSlot {
+	n, err := strconv.Atoi(s[1:])
+	if err != nil || n < 1 || n > MaxSlot || s[1] == '0' {
 		return Striker{}, fmt.Errorf("striker %q: slot must be 1..%d", s, MaxSlot)
 	}
-	return Striker{h, s[1] - '0'}, nil
+	return Striker{h, uint8(n)}, nil
 }
 
 // Source is what sounded in one stroke: one striker, or two strikers of

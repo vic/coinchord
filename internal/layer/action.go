@@ -8,7 +8,7 @@ import (
 	"unicode/utf8"
 )
 
-// Action is one effect of an expansion: Text, Combo, Switch or Undo.
+// Action is one effect of an expansion: Text, Combo, Switch, Undo, Mouse or Command.
 type Action interface{ act() }
 
 // Text types literal text.
@@ -130,6 +130,12 @@ func token(tok string) (Action, error) {
 	}
 	if tok == "undo" {
 		return Undo{}, nil
+	}
+	if name, ok := strings.CutPrefix(tok, "do:"); ok {
+		return parseCommand(name)
+	}
+	if kind, arg, ok := strings.Cut(tok, ":"); ok && slices.Contains(mouseNames, kind) {
+		return parseMouse(kind, arg)
 	}
 	return parseCombo(tok)
 }
