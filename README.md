@@ -46,80 +46,74 @@ The fastest way to quit a new input method is shoulder soreness. Never hover you
 
 ---
 
-## 3. Quick Start & Calibration
+## 3. Quick Start
 
-If you use Nix, launch CoinChord directly from the project directory:
+With Nix, run CoinChord from the project directory:
 
-    nix run
+    $ nix run
 
-Or enter the development shell and run with Go:
+Or enter the development shell and run it with Go:
 
-    nix develop
-    go run main.go
+    $ nix develop
+    $ go run ./cmd/coinchord
 
-*(Linux uses `arecord` from `alsa-utils`; macOS uses `rec` from `sox`—both are automatically provided by `flake.nix`.)*
+On Linux CoinChord reads the mic through `arecord` from `alsa-utils`. On macOS it uses `rec` from `sox`. The flake provides both. CoinChord opens a full-screen terminal interface. You can click every control with the mouse, so you do not need to know any keys. The wheel scrolls lists.
 
-### Step 1: Calibrate to Your Room & Objects
-When the interactive menu opens, choose **`1) Setup & Calibrate`**:
-1. **Stay still for 2 seconds** while CoinChord listens to your room's baseline noise (fans, AC, street hum) and sets a smart volume trigger.
-2. **Tap your Left object 5 times** at a relaxed, natural volume.
-3. **Tap your Right object 5 times.**
-4. **Draw a straight Line scrape 5 times** (~1 inch across the table).
+The interface has six sections. The live strip at the top stays visible in all of them. It shows each striker as a coin that glows when the mic hears it, a loudness meter, the live sound spectrum, your last strokes and your last chord with the text it types.
 
-CoinChord saves your personal acoustic profile to **`~/.coinchord.json`**. Look at your Left and Right pitch readout: a gap of **1,500 Hz or more** means effortless left/right accuracy.
+## 4. Kits: Coins, Nails and Other Objects
 
-## 4. The Four Acoustic Shapes
+A kit is the set of strikers you use. Each striker belongs to one hand. The **Overview** section shows the kits with their contrast, shape and speed ratings, and the number of gestures and chords each kit gives. Click a kit to use it.
 
-CoinChord reads both **which hand** moved (via pitch) and **what geometry** you drew on the desk (via duration, friction flatness, pressure ripples, and pitch sweep):
+The classic kits have one striker per hand, for example a small coin and a large coin. Larger kits have more voices per hand: two kitchen objects per hand, or each fingernail on the laptop palm rest (strikers `L1`–`L5` and `R1`–`R5`). More voices give more chords, but the voices must sound different. Calibration measures this for your objects, so you know if a kit works for you.
 
-* **`TAP` (`L_TAP`, `R_TAP`, `DUAL_TAP`):** A crisp, quick vertical tap (`<= 125 ms`). Dropping both hands at once triggers `DUAL_TAP`.
-* **`LINE` (`L_LINE`, `R_LINE`):** A straight, steady ~1-inch drag across the desk with even pressure and flat pitch.
-* **`CURV` (`L_CURV`, `R_CURV`):** A curved hook or J-stroke. As your wrist arcs, the contact angle shifts and sweeps the pitch centroid by `> 480 Hz`.
-* **`CIRC` (`L_CIRC`, `R_CIRC`):** A small circular swirl on the desk (`> 340 ms` or 2+ rhythmic speed ripples).
-* **`DUAL_SHAPES`:** Both hands drawing continuous shapes at the same time (for example, Left draws a straight line while Right draws a curve), blending high-band and low-band friction simultaneously.
+## 5. Calibrate
 
----
+Open **Calibrate** first. It takes about two minutes:
 
-## 5. Your 5-Day Learning Path (From First Tap to Whole Phrases)
+1. Stay quiet for 2 seconds. CoinChord measures the room noise and sets the trigger.
+2. Tap each striker 5 times. CoinChord learns the sound print of each one and shows how alike they sound. Alike strikers are easy to confuse.
+3. Drag one striker 3 times. CoinChord learns the difference between a tap and friction.
+4. Try every gesture 3 times. Each card shows a live score. Skip any gesture and come back later.
 
-Don't rush. Ten focused minutes a day builds permanent muscle memory:
+The report counts your reliable gestures, shows a score per shape and striker, and lists the weakest gestures with tips. The profile is saved in `~/.config/coinchord/profile.json` (the user config directory of your system).
 
-* **Day 1 — The Single-Hand Taps & Lines:**
-  Practice `L_TAP` (`"the "`), `R_TAP` (`"and "`), `DUAL_TAP` (`"I "`), `L_LINE` (`"to "`), and `R_LINE` (`"of "`). Focus on keeping your wrists planted and tapping lightly.
-* **Day 2 — Curves & Circles:**
-  Add `L_CURV` (`"you "`), `R_CURV` (`"for "`), `L_CIRC` (`"in "`), and `R_CIRC` (`"that "`). Notice how a hook feels noticeably different in your wrist than a straight line or a swirl.
-* **Day 3 — Two-Hand Rhythms:**
-  Combine two gestures within **360 milliseconds** (`chord_win_ms`) so they fuse into one word:
-  * `L_LINE + R_CURV` -> **`with `** (Left slides straight, Right hooks right after)
-  * `L_CURV + R_LINE` -> **`from `** (Left hooks, Right slides straight)
-  * `L_CIRC + R_TAP` -> **`this `** (Left swirls, Right punctuates with a tap)
-  * `R_CIRC + L_TAP` -> **`have `** (Right swirls, Left taps)
-  * `DUAL_SHAPES` -> **`something `** (Both hands glide simultaneously)
-* **Day 4 — Whole-Phrase Drills (`Option 2`):**
-  Open **`2) Whole-Word & Shape Trainer`**. Instead of boring letter drills, CoinChord feeds you full English sentences (`"the and to of in that you for "`), prompts the shape chord for each word, and calculates your live **WPM** when you finish the phrase. Say each word out loud as you draw its shape to lock in the neural link.
-* **Day 5 — Programming Mode:**
-  Perform **`L_CIRC + R_CIRC`** (two circular swirls) anytime to switch into **Code Mode**, where `L_TAP` = `"def "`, `R_TAP` = `"return "`, `DUAL_TAP` = `"()"`, `L_LINE` = `" = "`, `R_LINE` = `":\n    "`, `L_CIRC` = `"for "`, `R_CIRC` = `" in "`, `L_CURV` = `"if "`, and `R_CURV` = `"else:\n    "`. Swirl both hands again (`L_CIRC + R_CIRC`) to jump right back to English prose.
+## 6. The Gestures
 
+A gesture is a source and a shape. The source is one striker, or two strikers of different hands at the same time (for example `L&R`). The shapes are:
 
-## 6. Customizing `~/.coinchord.json`
+* `TAP`: a light, quick tap.
+* `KNOCK`: a firm tap, about twice as loud.
+* `LINE`: a straight 1-inch drag.
+* `CURV`: a drag that hooks at the end, like a J.
+* `CIRC`: a small circle, 1.5 turns.
+* `SLIDE`: a long, slow straight drag.
+* `ZIG`: a fast zigzag scribble.
 
-Every chord, timing window, and training phrase lives in **`~/.coinchord.json`**, which you can edit with any text editor—no recompiling required:
+One gesture, or two gestures inside the chord window, make a chord. A two-coin kit has 21 gestures and 462 chords. The **Gestures** section shows every gesture of your kit with a drawing and a how-to. A card lights up when the mic hears it. The side panel shows how CoinChord measured the last stroke: duration, loudness, friction, bumps, pitch bend and which striker it matched, each against the knob that decides it.
 
-* **Add Custom Words or Snippets:** Add any key to `"prose_chords"` or `"code_chords"` using single shapes (`"L_CURV"`) or two-step combos (`"L_LINE+R_CURV"`, `"R_TAP+L_CIRC"`, etc.).
-* **Tune Your Chord Speed (`"chord_win_ms"`):** Default is `360` ms. Bump it up to `450` ms during your first few days so two-hand combos never split into separate words; drop it to `240` ms once your hands get fast.
-* **Add Custom Practice Sentences (`"word_phrases"`):** Add your own sentences to `"word_phrases"` in `~/.coinchord.json`, and the Interactive Trainer will automatically look up the matching shape chords and time your WPM.
+## 7. Tutor
 
----
+The **Tutor** starts by showing how one gesture types a whole phrase, and how a few gestures type a full sentence. Click *Watch the magic* to see it play. Then each lesson is one sentence of a short story. The tutor shows the next chord, how to perform it, and what it types. A wrong chord types nothing, so mistakes cost nothing. When the text has a word with no chord, the tutor switches to the `alpha` layer and spells it.
 
-## 7. Quick Troubleshooting & Reference
+Each run measures words per minute, chords per minute, accuracy, time, and the chords you missed most. Your records are saved, and a progress chart shows your last runs. To practice your own text, put `.txt` files in `~/.config/coinchord/stories`, or start with:
 
-* **False triggers from speaking or background noise:** CoinChord filters out everything below `1,800 Hz` (so voices and bass hum are ignored), but if loud clacks trigger inputs, open `~/.coinchord.json` and raise `"trigger"` slightly (e.g., from `0.032` to `0.050`).
-* **Curves (`CURV`) registering as straight lines (`LINE`):** Exaggerate the wrist hook slightly at the end of your stroke so the coin's tilt changes cleanly.
-* **Circles (`CIRC`) registering as lines (`LINE`):** Make your swirl slightly wider or complete 1.5 rotations so at least two speed/pressure ripples occur.
+    $ coinchord -text mytext.txt
 
-### Quick Menu Reference
-* **`1) Setup & Calibrate`** — Measures ambient noise and calibrates Left pitch, Right pitch, and desk friction.
-* **`2) Whole-Word & Shape Trainer`** — Guided whole-word phrase practice with real-time WPM scoring.
-* **`3) Live Prose Mode`** — Real-time English word-chording output (`L_CIRC+R_CIRC` toggles to Code Mode).
-* **`4) Live Code Mode`** — Real-time programming syntax output (`L_CIRC+R_CIRC` toggles to Prose Mode).
+## 8. Layers
 
+A layer maps chords to text and keys. The built-in layers are `english` (common words and phrases), `alpha` (letters), `num`, `sym`, `kbd` (Return, Backspace, Tab, arrows, and shortcuts such as `ctrl+c`, `alt+tab` and `super+left` for window management), `spanish`, `python` and `go`. The `global` layer holds the layer switches. They work from any layer and use two-hand gestures. The **Layers** section shows every binding. Click a binding, or perform a chord, to type it into the sandbox.
+
+## 9. Settings
+
+**Knobs** change detection: trigger level, tap length, knock ratio, curve bend, slide length, circle and zigzag bumps, two-hand margin, chord window and more. Each knob has a safe range. **Bindings** edits layers: click *Record a new binding*, perform the chord, then write its expansion. An expansion is text plus tokens: `{enter}`, `{bs}`, `{tab}`, `{space}`, `{ctrl+alt+left}`, `{layer:kbd}`, `{undo}`, and `{{` for a literal `{`. You can add a new layer; CoinChord gives it a free switch chord. **Stories** reloads your texts and can give every missing word its own chord.
+
+## 10. Troubleshooting
+
+* **Noise or speech types words:** raise *Trigger level* in Settings, or calibrate again in a quiet moment.
+* **Curves detected as lines:** hook the wrist more at the end, or lower *Curve drift Hz*.
+* **Circles detected as lines:** make 1.5 turns, a bit wider, or lower *Circle bumps*.
+* **Two strikers confused:** look at the report. If they are more than 90% alike, choose objects with more different sounds.
+* **Test without a mic:** `coinchord -input file.raw` reads raw signed 16-bit mono 44100 Hz audio from a file.
+
+Keyboard actions such as `{ctrl+c}` show in the sandbox. CoinChord does not yet send keys to other programs.

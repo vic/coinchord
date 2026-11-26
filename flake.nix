@@ -18,9 +18,10 @@
       packages = forAll (pkgs: {
         default = pkgs.buildGoModule {
           pname = "coinchord";
-          version = "0.2.0";
+          version = "0.3.0";
           src = ./.;
-          vendorHash = null;
+          vendorHash = "sha256-IvEt549O9UgqUgAwODGLpzw5HVV+rVLqPZhsXyeGBVE=";
+          subPackages = [ "cmd/coinchord" ];
           nativeBuildInputs = [ pkgs.makeWrapper ];
           postInstall = ''
             wrapProgram $out/bin/coinchord --prefix PATH : ${pkgs.lib.makeBinPath (with pkgs; [ alsa-utils sox ])}
